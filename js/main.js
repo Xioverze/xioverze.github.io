@@ -69,6 +69,8 @@ const MAIN = {
 
         let o = E(player.hsj >= 2 ? 'ee13' : 'ee12')
 
+        if (player.hsj>=6) o = o.pow(tmp.hsjEffect[1])
+
         if (x.gte(o)) {
             let before = x
             x = x.overflow(o,0.75)
@@ -105,25 +107,31 @@ const MAIN = {
 
         tmp.gsBeforeCompact = 2/x
 
+        if (!isFinite(tmp.gsBeforeCompact)) tmp.gsBeforeCompact = Number.MAX_VALUE
+
         if (player.grassjump>=2) x /= 10
 
         x = Math.min(Math.max(x*tmp.compact,2e-4),10)
+
+        if (isNaN(x)) x = 2e-4
 
         return x
     },
     compact() {
         if (!hasUpgrade('unGrass',3)) {
-            tmp.compact = 1
+            tmp.compact = E(1)
             return
         }
 
-        let c = upgEffect('unGrass',3,1)
+        let c = E(upgEffect('unGrass',3))
 
-        c *= upgEffect('astro',4,1)
+        c = c.mul(upgEffect('astro',4))
 
-        if (player.grassjump>=2) c **= 2
+        if (player.grassjump>=2) c = c.pow(2)
 
-        tmp.compact = Math.min(c,tmp.gsBeforeCompact/100)
+        tmp.compact = Decimal.min(c,tmp.gsBeforeCompact/100)
+
+        if (isNaN(tmp.compact.mag)) tmp.compact = E(Number.MAX_VALUE)
     },
     xpGain() {
         let x = Decimal.mul(3,upgEffect('grass',3)).mul(tmp.tier.mult).mul(tmp.compact)
@@ -390,7 +398,12 @@ el.update.main = ()=>{
 
     tmp.el.grassAmt.setHTML(g.format(0))
     tmp.el.grassGain.setHTML(tmp.autoCutUnlocked ? formatGain(g,(pa?tmp.planetiumGain:tmp.grassGain).div(tmp.autocut).mul(tmp.autocutBonus).mul(tmp.autocutAmt)) : "")
-    tmp.el.grassOverflow.setHTML((tmp.grass_overflow.gt(1)?`(^1/${format(tmp.grass_overflow)} to grass!)`:'')+(tmp.pm_overflow.gt(1)?` (^1/${format(tmp.pm_overflow)} to planetarium!)`:''))
+
+    var oh = tmp.grass_overflow.gt(1)?`(^1/${format(tmp.grass_overflow)} to grass!)`:''
+    if (tmp.pm_overflow.gt(1)) oh += ` (^1/${format(tmp.pm_overflow)} to planetarium!)`
+    if (tmp.sf_overflow.gt(1)) oh += ` (^1/${format(tmp.sf_overflow)} to solar flares!)`
+
+    tmp.el.grassOverflow.setHTML(oh)
 
     let tier_unl = !pa && player.pTimes > 0
     let astr_unl = player.gTimes > 0
@@ -437,7 +450,7 @@ el.update.main = ()=>{
 }
 
 function updateUnspentPerk() {
-    tmp.perkUnspent = player.maxPerk.sub(player.spentPerk).sub(player.spentPerkSolar).max(0)
+    tmp.perkUnspent = player.maxPerk.add(player.generatedPerk).sub(player.spentPerk).sub(player.spentPerkSolar).max(0)
 }
 
 tmp_update.push(()=>{
@@ -483,7 +496,11 @@ tmp_update.push(()=>{
     tmp.level.scale2 = player.recel && player.hsj <= 0?5:player.decel && player.hsj <= 0?300:700
     tmp.level.scale2 *= starTreeEff('progress',7,1)
 
-    tmp.level.scale3 = Decimal.mul(player.hsj>=3?1e6:1e5,upgEffect('cs',3))
+    let s = Decimal.mul(player.hsj>=3?1e6:1e5,upgEffect('cs',3))
+
+    s = s.mul(solarUpgEffect(12,3)).mul(getFormingBonus('fund',4)).mul(getStageBonus('dl'))
+
+    tmp.level.scale3 = s
 
     tmp.level.next = MAIN.level.req(lvl)
     tmp.level.bulk = MAIN.level.bulk(player.xp)

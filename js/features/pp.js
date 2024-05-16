@@ -61,7 +61,7 @@ RESET.pp = {
 
         let keep_perk = order == "p" && hasUpgrade('auto',4) || order == "c" && hasUpgrade('auto',7) || order == "gh" && tmp.minStats.gh >= 10
 
-        if (!keep_perk) {
+        if (player.hsj < 5 && !keep_perk) {
             player.maxPerk = E(0)
             player.spentPerk = E(0)
             resetUpgrades('perk')
@@ -278,7 +278,7 @@ UPGS.ap = {
             bulk: i => i.div(5).max(1).log(1.25).scale(1e5,2,0,true).floor().add(1),
 
             effect(i) {
-                let x = Decimal.pow(1.25,Math.floor(i/25)).mul(i/4+1)
+                let x = Decimal.pow(1.25,i.div(25).floor()).mul(i.div(4).add(1))
 
                 return x
             },
@@ -328,7 +328,7 @@ UPGS.ap = {
             res: "ap",
             icon: ['Icons/XP','Icons/Plus'],
             
-            cost: i => Decimal.pow(3,i**1.2).mul(1e5).ceil(),
+            cost: i => Decimal.pow(3,i.pow(1.2)).mul(1e5).ceil(),
             bulk: i => i.div(1e5).max(1).log(3).root(1.2).floor().add(1),
 
             effect(i) {
@@ -480,7 +480,7 @@ UPGS.np = {
             res: "np",
             icon: ["Curr/Momentum"],
                         
-            cost: i => Decimal.pow(2,i**1.25).mul(10).ceil(),
+            cost: i => Decimal.pow(2,i.pow(1.25)).mul(10).ceil(),
             bulk: i => i.div(10).max(1).log(2).root(1.25).floor().add(1),
         
             effect(i) {

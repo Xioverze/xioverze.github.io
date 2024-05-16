@@ -35,6 +35,7 @@ function getPlayerData() {
         autoUpg: {},
 
         maxPerk: E(0),
+        generatedPerk: E(0),
         spentPerk: E(0),
         spentPerkSolar: E(0),
 
@@ -183,6 +184,7 @@ function getPlayerData() {
 
             cs: E(0),
             fs: E(0),
+            eg: E(0),
         },
 
         pinned_drag: {
@@ -463,7 +465,7 @@ function loadGame(start=true, gotNaN=false) {
         setInterval(checkNaN,1000)
         setInterval(()=>{
             checkConstellationCosts()
-            updateConstellation()
+            if (player.sn.tier.lt(14)) updateConstellation()
         },1000)
         setupSolarianStage()
 

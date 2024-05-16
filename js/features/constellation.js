@@ -176,13 +176,13 @@ UPGS.constellation = {
             res: "line",
             icon: ['Icons/PrismUpgrade',"Icons/StarSpeed"],
                 
-            cost: i => Decimal.pow(100,i**1.25).mul(1e6).ceil(),
+            cost: i => Decimal.pow(100,i.pow(1.25)).mul(1e6).ceil(),
             bulk: i => i.div(1e6).max(1).log(100).root(1.25).floor().add(1),
 
             effect(i) {
                 let x = i
 
-                return x.toNumber()
+                return x
             },
             effDesc: x => "+"+format(x,0),
         },
@@ -764,6 +764,8 @@ function getConstellationImage(id) {
 }
 
 function lineGain() {
+    if (hasCentralized(23)) return player.planetoid.pm.floor()
+
     let x = cs_effect.line
 
     .mul(upgEffect('constellation',2))
@@ -781,6 +783,8 @@ function lineGain() {
 }
 
 function arcGain() {
+    if (hasCentralized(24)) return player.planetoid.pm.floor()
+
     let x = cs_effect.arc
 
     .mul(upgEffect('constellation',5))
@@ -792,6 +796,8 @@ function arcGain() {
 }
 
 function darkChargeRate() {
+    if (hasCentralized(27)) return player.planetoid.pm.floor()
+
     let x = cs_effect.bolt
 
     .mul(starTreeEff('ring',40)).mul(starTreeEff('ring',45))
@@ -799,6 +805,8 @@ function darkChargeRate() {
     if (player.grassjump>=20) x = x.mul(getGJEffect(5))
 
     x = x.mul(solarUpgEffect(4,7)).mul(solarUpgEffect(1,10))
+
+    x = x.pow(solarUpgEffect(1,21))
 
     return x
 }
@@ -819,7 +827,7 @@ function updateConstellationTemp() {
     tmp.constStarStrong = hasSolarUpgrade(2,13)
 
     tmp.maxLConstellation = player.sn.times > 0 ? 24 : 12
-    tmp.FP_tier = upgEffect('constellation',7,0) + solarUpgEffect(6,8,0)
+    tmp.FP_tier = Decimal.add(upgEffect('constellation',7,0),solarUpgEffect(6,8,0))
     tmp.constellationCap = []
 
     tmp.lineGain = lineGain()

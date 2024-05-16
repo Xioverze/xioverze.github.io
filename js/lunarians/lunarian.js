@@ -19,6 +19,8 @@ function resetLunarTemp() {
         hc_power: 1,
         key_chance: 0,
         double_chance: 0,
+        life_stealer: 0,
+        regen: 0,
         luck: 1,
         gps: false,
     }
@@ -46,6 +48,7 @@ function loadLunarian() {
         world_init.id = data.id
         world_init.level = data.level
         world_init.type = data.type
+        world_init.soul_mult = data.soul_mult
         cannot = false
 
         player.start_damage = E(data.start.damage)
@@ -82,7 +85,7 @@ function loadLunarian() {
         })
     }
 
-    generateTiles('#003875')
+    generateTiles()
 
     camera_pos = getPositionMult(...player.position)
 
@@ -106,6 +109,8 @@ function calc(dt) {
         o[1] = Math.max(0,o[1]-dt)
         if (o[1] <= 0) outputs.splice(i,1)
     })
+
+    player.lunarians = player.lunarians.add(temp.max_lunar.mul(dt * temp.regen)).min(temp.max_lunar)
 
     calcCanvas(dt/1000)
 }

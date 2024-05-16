@@ -4,7 +4,7 @@ const WORLD_GENERATION = {
 
         },
         config: {
-            colors: ['#003'],
+            background: '#003',
 
             enemies_range: [20,30],
             treasures_range: [15,20],
@@ -24,7 +24,7 @@ const WORLD_GENERATION = {
 
         },
         config: {
-            colors: ['#003'],
+            background: '#003',
 
             health_mult: 200,
             soul_mult: 1000,
@@ -40,6 +40,85 @@ const WORLD_GENERATION = {
                 ['l_soul',0.5,2],
                 ['clover',0.1],
                 ['gps',0.05],
+            ],
+        },
+    },
+    lunar3: {
+        run() {
+
+        },
+        config: {
+            background: '#0aa',
+            tileColor: '#2DA4FF',
+
+            health_mult: 2e5,
+            soul_mult: 1e6,
+
+            enemies_range: [20,30],
+            treasures_range: [15,20],
+
+            treasure_weight: [
+                ['l_curr3',1],
+                ['rage_essence',0.25],
+                ['calm_essence',0.25],
+                ['wise_essence',0.25],
+                ['l_soul',0.5,2],
+                ['clover',0.1],
+            ],
+        },
+    },
+    lunar4: {
+        run() {
+
+        },
+        config: {
+            background: '#444',
+            tileColor: '#888',
+
+            health_mult: 1e12,
+            soul_mult: 1e9,
+
+            lvl_size: 10,
+            health_scaling: 1.25,
+
+            enemies_range: [20,30],
+            treasures_range: [15,20],
+
+            treasure_weight: [
+                ['l_curr4',1],
+                ['rage_essence',0.25],
+                ['calm_essence',0.25],
+                ['wise_essence',0.25],
+                ['l_soul',0.5,2],
+                ['clover',0.1],
+            ],
+        },
+    },
+    lunar5: {
+        run() {
+
+        },
+        config: {
+            background: '#00342D',
+            tileColor: '#00564A',
+
+            health_mult: 5e22,
+            soul_mult: 1e12,
+
+            lvl_size: 5,
+            health_scaling: 1.25,
+
+            enemies_range: [20,30],
+            treasures_range: [15,20],
+
+            treasure_weight: [
+                ['l_curr5',1],
+                ['rage_essence',0.25],
+                ['calm_essence',0.25],
+                ['wise_essence',0.25],
+                ['l_soul',0.5,2],
+                ['clover',0.1],
+                ['life_stealer',0.1],
             ],
         },
     },
@@ -85,6 +164,22 @@ const LUNAR_ITEMS = {
         name: "Lunarian Wheat",
         icon: "Curr/LunarCurrency2",
     },
+    l_curr3: {
+        type: "res",
+        name: "Ball of Ice",
+        icon: "Curr/LunarCurrency3",
+    },
+    l_curr4: {
+        type: "res",
+        name: "Magma Brick",
+        icon: "Curr/LunarCurrency4",
+    },
+    l_curr5: {
+        type: "res",
+        name: "Living Leaf",
+        icon: "Icons/Placeholder",
+        // icon: "Curr/LunarCurrency5",
+    },
     
     clover: {
         type: "items",
@@ -120,6 +215,31 @@ const LUNAR_ITEMS = {
         upgBase: 1,
         maxLevel: 1,
         upgradeDesc: `GPS effect is active permanently on level 1.`,
+    },
+    life_stealer: {
+        type: "items",
+        name: "Life Stealer",
+        // icon: "Items/LifeStealer",
+        icon: "Icons/Placeholder",
+        rarity: 2,
+        get desc() { return `Attack heals you <b class='green'>+${formatPercent(getUpgradeBoost(this.upg_level)/20)}</b> of your lunarian attack per quantity. <b class='green'>(+${formatPercent(this.updateEffect())}/attack)</b>` }, // ${this.updateEffect()>=0.5?", capped":""}
+        updateEffect() {
+            let x = this.amount.mul(getUpgradeBoost(this.upg_level)).div(20).toNumber()
+
+            temp.life_stealer += x
+
+            return x
+        },
+
+        upgBase: 5,
+
+        boosted: true,
+        maxLevel: 10,
+        get upgradeDesc() { return `Regenerate <b class='green'>+0.1%/s</b> of your max lunarians per level. <b class='green'>(+${formatPercent(this.upgEffect(this.upg_level))}/s)</b>` },
+        upgEffect: x => x / 1000,
+        updateUpgrade() {
+            temp.regen += this.upgEffect(this.upg_level)
+        },
     },
     
     mouse: {
